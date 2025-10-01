@@ -25,15 +25,22 @@ public class DeregistrationRepository : IDeregistrationRepository
     public async Task<IEnumerable<Employee>> GetAllOSEmployees()
     {
         using var connection = new SqlConnection(_connectionString);
-        return await connection.QueryAsync<Employee>("MD_Master_Employee_GetAllEmployeesByResType",
+        var data = await connection.QueryAsync(
+        "MD_Master_Employee_GetAllEmployeesByResType_DropDown",
         new { TypeCode = "OS" },
         commandType: CommandType.StoredProcedure);
+
+        return data.Select(row => new Employee
+    {
+        MempId = (int)row.EID,
+        Name = (string)row.FullName_1
+    }).ToList();
     }
 
-    public async Task<IEnumerable<Reason>> GetReasons()
+    public async Task<IEnumerable<DeregistrationReason>> GetReasons()
     {
         using var connection = new SqlConnection(_connectionString);
-        return await connection.QueryAsync<Reason>("OSDeregistration_Master_GetReasonList",
+        return await connection.QueryAsync<DeregistrationReason>("OSDeregistration_Master_GetReasonList",
         new { IsActive = 1 },
         commandType: CommandType.StoredProcedure);
     }
@@ -57,14 +64,13 @@ public class DeregistrationRepository : IDeregistrationRepository
         return employee;
     }
 
-    public async Task<DataTable> GetTransportClearanceStatus(int osdId, int mempId)
+    public async Task<TransportClearanceDto?> GetTransportClearanceStatus(int osdId, int mempId)
     {
-        using var connection = new SqlConnection(_connectionString);
-        var parameters = new { OSDID = osdId, MEmpID = mempId };
-        var reader = await connection.ExecuteReaderAsync("OSDeregistration_PopulateTransportClearanceStatusByOSDID", parameters, commandType: CommandType.StoredProcedure);
-        var dt = new DataTable();
-        dt.Load(reader);
-        return dt;
+        using var conn = new SqlConnection(_connectionString);
+        return await conn.QuerySingleOrDefaultAsync<TransportClearanceDto>(
+        "OSDeregistration_PopulateTransportClearanceStatusByOSDID",
+        new { OSDID = osdId, MEmpID = mempId },
+        commandType: CommandType.StoredProcedure);
     }
 
     public async Task<int> GetApprovalCount(int masterId)

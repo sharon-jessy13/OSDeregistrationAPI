@@ -84,3 +84,4 @@ C:\samsung\OSDeregistrationAPI\obj\Debug\net9.0\refint\OSDeregistrationAPI.dll
 C:\samsung\OSDeregistrationAPI\obj\Debug\net9.0\OSDeregistrationAPI.pdb
 C:\samsung\OSDeregistrationAPI\obj\Debug\net9.0\OSDeregistrationAPI.genruntimeconfig.cache
 C:\samsung\OSDeregistrationAPI\obj\Debug\net9.0\ref\OSDeregistrationAPI.dll
+C:\samsung\OSDeregistrationAPI\obj\Debug\net9.0\OSDeregistrationAPI.sourcelink.json

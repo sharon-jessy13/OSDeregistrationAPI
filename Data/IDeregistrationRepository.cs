@@ -7,10 +7,11 @@ public interface IDeregistrationRepository
 {
     Task<IEnumerable<Employee>> GetEmployeesForRM(int rmEID);
     Task<IEnumerable<Employee>> GetAllOSEmployees();
-    Task<IEnumerable<Reason>> GetReasons();
+    Task<IEnumerable<DeregistrationReason>> GetReasons();
     Task<IEnumerable<RatingCriterion>> GetRatingCriteria();
     Task<Employee?> GetEmployeeDetails(int mempId);
-    Task<DataTable> GetTransportClearanceStatus(int osdId, int mempId);
+    Task<TransportClearanceDto?> GetTransportClearanceStatus(int osdId, int mempId);
+
     Task<int> GetApprovalCount(int masterId);
     Task<int> CreateDeregistrationRequest(DeregistrationRequest request);
     Task InsertRatings(int masterId, IEnumerable<RatingSubmission> ratings);

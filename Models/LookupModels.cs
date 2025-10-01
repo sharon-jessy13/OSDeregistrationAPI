@@ -1,9 +1,9 @@
 namespace OSDeregistrationAPI.Models;
 
-public class Reason
+public class DeregistrationReason 
 {
     public int ReasonID { get; set; }
-    public string? ReasonText { get; set; }
+    public string? Reason { get; set; } 
 }
 
 public class RatingCriterion

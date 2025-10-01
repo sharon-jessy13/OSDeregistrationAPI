@@ -2,7 +2,7 @@ namespace OSDeregistrationAPI.Models;
 
 public class Employee
 {
-    public int MEMPID { get; set; }
+    public int MempId { get; set; }
     public string? Name { get; set; }
     public DateTime JoinDate { get; set; }
     public string? PartnerCompany { get; set; }
