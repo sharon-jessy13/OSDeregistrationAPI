@@ -17,25 +17,32 @@ public class DeregistrationRepository : IDeregistrationRepository
     public async Task<IEnumerable<Employee>> GetEmployeesForRM(int rmEID)
     {
         using var connection = new SqlConnection(_connectionString);
-        return await connection.QueryAsync<Employee>("OSDeregistration_GetAllmyDirectOSEmployees", new { EID = rmEID }, commandType: CommandType.StoredProcedure);
+        return await connection.QueryAsync<Employee>("OSDeregistration_GetAllmyDirectOSEmployees",
+        new { EID = rmEID },
+        commandType: CommandType.StoredProcedure);
     }
 
     public async Task<IEnumerable<Employee>> GetAllOSEmployees()
     {
         using var connection = new SqlConnection(_connectionString);
-        return await connection.QueryAsync<Employee>("MD_Master_Employee_GetAllEmployeesByResType", new { TypeCode = "OS" }, commandType: CommandType.StoredProcedure);
+        return await connection.QueryAsync<Employee>("MD_Master_Employee_GetAllEmployeesByResType",
+        new { TypeCode = "OS" },
+        commandType: CommandType.StoredProcedure);
     }
 
     public async Task<IEnumerable<Reason>> GetReasons()
     {
         using var connection = new SqlConnection(_connectionString);
-        return await connection.QueryAsync<Reason>("OSDeregistration_Master_GetReasonList", new { IsActive = 1 }, commandType: CommandType.StoredProcedure);
+        return await connection.QueryAsync<Reason>("OSDeregistration_Master_GetReasonList",
+        new { IsActive = 1 },
+        commandType: CommandType.StoredProcedure);
     }
 
     public async Task<IEnumerable<RatingCriterion>> GetRatingCriteria()
     {
         using var connection = new SqlConnection(_connectionString);
-        return await connection.QueryAsync<RatingCriterion>("OSDeregistration_Master_GetRatingCriteria", commandType: CommandType.StoredProcedure);
+        return await connection.QueryAsync<RatingCriterion>("OSDeregistration_Master_GetRatingCriteria",
+        commandType: CommandType.StoredProcedure);
     }
 
     public async Task<Employee?> GetEmployeeDetails(int mempId)

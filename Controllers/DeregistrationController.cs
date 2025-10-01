@@ -1,60 +1,98 @@
 using Microsoft.AspNetCore.Mvc;
 using OSDeregistrationAPI.Data;
 using OSDeregistrationAPI.Models;
-using OSDeregistrationAPI.Services;
+using System.Text;
 
 [ApiController]
 [Route("api/[controller]")]
 public class DeregistrationController : ControllerBase
 {
     private readonly IDeregistrationRepository _repository;
-    private readonly IDeregistrationService _service;
 
-    public DeregistrationController(IDeregistrationRepository repository, IDeregistrationService service)
+    public DeregistrationController(IDeregistrationRepository repository)
     {
-        _repository = repository; 
-        _service = service;       
+        _repository = repository;
     }
 
     // --- GET Endpoints ---
     [HttpGet("employees/rm/{rmId}")]
-    public async Task<IActionResult> GetEmployeesForManager(int rmId) =>
-     Ok(await _repository.GetEmployeesForRM(rmId));
+    public async Task<IActionResult> GetEmployeesForManager(int rmId)
+    {
+        var data = await _repository.GetEmployeesForRM(rmId);
+        return Ok(data);
+    }
     
     [HttpGet("employees/hr")]
-    public async Task<IActionResult> GetEmployeesForHr() =>
-    Ok(await _repository.GetAllOSEmployees());
+    public async Task<IActionResult> GetEmployeesForHr()
+    {
+        var data = await _repository.GetAllOSEmployees();
+        return Ok(data);
+    }
 
     [HttpGet("lookup/reasons")]
-    public async Task<IActionResult> GetReasons() =>
-    Ok(await _repository.GetReasons());
+    public async Task<IActionResult> GetReasons()
+    {
+        var data = await _repository.GetReasons();
+        return Ok(data);
+    }
     
     [HttpGet("lookup/rating-criteria")]
-    public async Task<IActionResult> GetRatingCriteria() =>
-    Ok(await _repository.GetRatingCriteria());
+    public async Task<IActionResult> GetRatingCriteria()
+    {
+        var data = await _repository.GetRatingCriteria();
+        return Ok(data);
+    }
 
     [HttpGet("employees/{mempId}/details")]
-    public async Task<IActionResult> GetEmployeeDetails(int mempId) =>
-    Ok(await _repository.GetEmployeeDetails(mempId));
+    public async Task<IActionResult> GetEmployeeDetails(int mempId)
+    {
+        var data = await _repository.GetEmployeeDetails(mempId);
+        return Ok(data);
+    }
 
     [HttpGet("clearance/transport-status")]
-    public async Task<IActionResult> GetTransportStatus([FromQuery] int osdId, [FromQuery] int mempId) => Ok(await _repository.GetTransportClearanceStatus(osdId, mempId));
+    public async Task<IActionResult> GetTransportStatus([FromQuery] int osdId, [FromQuery] int mempId)
+    {
+        var data = await _repository.GetTransportClearanceStatus(osdId, mempId);
+        return Ok(data);
+    }
 
     [HttpGet("{masterId}/approval-count")]
-    public async Task<IActionResult> GetApprovalCount(int masterId) => Ok(await _repository.GetApprovalCount(masterId));
+    public async Task<IActionResult> GetApprovalCount(int masterId)
+    {
+        var data = await _repository.GetApprovalCount(masterId);
+        return Ok(data);
+    }
 
     // --- POST/PUT Endpoints ---
     [HttpPost("submit")]
     public async Task<IActionResult> SubmitDeregistration([FromBody] DeregistrationRequest request)
     {
-        int masterId = await _service.SubmitDeregistrationAsync(request);
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+        
+        int masterId = await _repository.CreateDeregistrationRequest(request);
+
+        if (request.Ratings.Any())
+        {
+            await _repository.InsertRatings(masterId, request.Ratings);
+        }
+
         return Ok(new { MasterID = masterId });
     }
     
     [HttpPost("clearance/items")]
     public async Task<IActionResult> SubmitClearanceItems([FromBody] ClearanceSubmission submission)
     {
-        await _service.SubmitClearanceItemsAsync(submission);
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+        
+        string xml = GenerateClearanceXml(submission);
+        await _repository.SaveClearanceItems(xml, submission.ActedByMempId);
         return Ok();
     }
     
@@ -80,4 +118,34 @@ public class DeregistrationController : ControllerBase
         return Ok();
     }
     public record OsHrApprovalModel(int OsMempId, DateTime? RelievingDate, int OsdId);
+
+    private string GenerateClearanceXml(ClearanceSubmission submission)
+    {
+        var sb = new StringBuilder();
+        sb.Append("<root>");
+
+        foreach (var item in submission.Items)
+        {
+            sb.Append("<Item>");
+            sb.Append($"<ItemKeyName>{item.KeyName}</ItemKeyName>");
+            sb.Append($"<ItemDispName>{item.DisplayName}</ItemDispName>");
+            sb.Append($"<OSDID>{submission.MasterId}</OSDID>");
+            sb.Append($"<ControlType>{item.ControlType}</ControlType>");
+            sb.Append($"<DeptCatID>{item.DepartmentCategoryId}</DeptCatID>");
+            sb.Append($"<ItemTextVal>{item.TextValue ?? ""}</ItemTextVal>");
+            sb.Append($"<ItemCheckBoxRbtVal>{item.SelectedValue}</ItemCheckBoxRbtVal>");
+            if (submission.LastWorkingDate == DateTime.MinValue)
+            {
+                sb.Append($"<LastworkingDate>{System.DBNull.Value}</LastworkingDate>");
+            }
+            else
+            {
+                sb.Append($"<LastworkingDate>{submission.LastWorkingDate}</LastworkingDate>");
+            }
+            sb.Append("</Item>");
+        }
+        
+        sb.Append("</root>");
+        return sb.ToString();
+    }
 }

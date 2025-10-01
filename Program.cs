@@ -1,23 +1,17 @@
-using FluentValidation;
-using FluentValidation.AspNetCore;
+
 using OSDeregistrationAPI.Data;
-using OSDeregistrationAPI.Services;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
 
 builder.Services.AddControllers();
-
-
-builder.Services.AddFluentValidationAutoValidation();
-builder.Services.AddValidatorsFromAssemblyContaining<Program>();
-
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 
 builder.Services.AddScoped<IDeregistrationRepository, DeregistrationRepository>();
-builder.Services.AddScoped<IDeregistrationService, DeregistrationService>(); 
+
 
 
 var app = builder.Build();
