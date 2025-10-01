@@ -1,0 +1,2 @@
+# OSDeregistrationAPI
+API of OSDeregistration
