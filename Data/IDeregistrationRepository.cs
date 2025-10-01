@@ -12,7 +12,7 @@ public interface IDeregistrationRepository
     Task<Employee?> GetEmployeeDetails(int mempId);
     Task<TransportClearanceDto?> GetTransportClearanceStatus(int osdId, int mempId);
 
-    Task<int> GetApprovalCount(int masterId);
+    Task<DeregistrationDetailsDto?> GetDeregistrationDetails(int osdId);
     Task<int> CreateDeregistrationRequest(DeregistrationRequest request);
     Task InsertRatings(int masterId, IEnumerable<RatingSubmission> ratings);
     Task UpdateConfirmationCount(int instanceId);

@@ -57,10 +57,14 @@ public class DeregistrationController : ControllerBase
         return Ok(data);
     }
 
-    [HttpGet("{masterId}/approval-count")]
-    public async Task<IActionResult> GetApprovalCount(int masterId)
+    [HttpGet("details/{osdId}")]
+    public async Task<IActionResult> GetDeregistrationDetails(int osdId)
     {
-        var data = await _repository.GetApprovalCount(masterId);
+        var data = await _repository.GetDeregistrationDetails(osdId);
+        if (data == null)
+        {
+            return NotFound();
+        }
         return Ok(data);
     }
 

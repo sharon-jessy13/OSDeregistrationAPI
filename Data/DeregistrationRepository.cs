@@ -26,15 +26,15 @@ public class DeregistrationRepository : IDeregistrationRepository
     {
         using var connection = new SqlConnection(_connectionString);
         var data = await connection.QueryAsync(
-        "MD_Master_Employee_GetAllEmployeesByResType_DropDown",
+        "MO_Master_Employee_GetAllEmployeesByResType_DropDown",
         new { TypeCode = "OS" },
         commandType: CommandType.StoredProcedure);
 
         return data.Select(row => new Employee
-    {
-        MempId = (int)row.EID,
-        Name = (string)row.FullName_1
-    }).ToList();
+        {
+            MempId = (int)row.EID,
+            Name = (string)row.FullName_1
+        }).ToList();
     }
 
     public async Task<IEnumerable<DeregistrationReason>> GetReasons()
@@ -56,7 +56,7 @@ public class DeregistrationRepository : IDeregistrationRepository
     {
         using var connection = new SqlConnection(_connectionString);
         var parameters = new { MEMPID = mempId };
-        var employee = await connection.QuerySingleOrDefaultAsync<Employee>("UQ_Master_Employee_GetEmployeeDetailsByMEMPID", parameters, commandType: CommandType.StoredProcedure);
+        var employee = await connection.QuerySingleOrDefaultAsync<Employee>("MO_Master_Employee_GetEmployeeDetailsByMEMPID", parameters, commandType: CommandType.StoredProcedure);
         if (employee != null)
         {
             employee.CurrentProjects = (await connection.QueryAsync<Project>("OSDeregistration_GetCurrentProjectsOfEmployee", parameters, commandType: CommandType.StoredProcedure)).ToList();
@@ -71,12 +71,6 @@ public class DeregistrationRepository : IDeregistrationRepository
         "OSDeregistration_PopulateTransportClearanceStatusByOSDID",
         new { OSDID = osdId, MEmpID = mempId },
         commandType: CommandType.StoredProcedure);
-    }
-
-    public async Task<int> GetApprovalCount(int masterId)
-    {
-        using var connection = new SqlConnection(_connectionString);
-        return await connection.QuerySingleOrDefaultAsync<int>("OSDeregistration_GetDeatilsByMasterID", new { OSDID = masterId }, commandType: CommandType.StoredProcedure);
     }
 
     public async Task<int> CreateDeregistrationRequest(DeregistrationRequest request)
@@ -98,26 +92,35 @@ public class DeregistrationRepository : IDeregistrationRepository
         using var connection = new SqlConnection(_connectionString);
         foreach (var rating in ratings)
         {
-            await connection.ExecuteAsync("OSDeregistration_InsertRateDetails", new { OSDID = masterId, RatingID = rating.RatingID }, commandType: CommandType.StoredProcedure);
+            await connection.ExecuteAsync("OSDeregistration_InsertRateDetails",
+            new { OSDID = masterId, RatingID = rating.RatingID },
+            commandType: CommandType.StoredProcedure);
         }
     }
 
     public async Task UpdateConfirmationCount(int instanceId)
-    {
-        using var connection = new SqlConnection(_connectionString);
-        await connection.ExecuteAsync("OSDeregistration_UpdateConfirmCount", new { InstanceId = instanceId }, commandType: CommandType.StoredProcedure);
-    }
+{
+    using var conn = new SqlConnection(_connectionString);
+    await conn.ExecuteAsync(
+        "OSDeregistration_UpdateConfirmCount",
+        new { InstanceId = instanceId },
+        commandType: CommandType.StoredProcedure);
+}
 
     public async Task UpdateActualRelievingDate(int eid, DateTime? relievingDate)
     {
         using var connection = new SqlConnection(_connectionString);
-        await connection.ExecuteAsync("ResignationAndRetention_UpdateActualRelievingDate", new { EID = eid, ActualRelievingDate = relievingDate }, commandType: CommandType.StoredProcedure);
+        await connection.ExecuteAsync("ResignationAndRetention_UpdateActualRelievingDate",
+        new { EID = eid, ActualRelievingDate = relievingDate },
+        commandType: CommandType.StoredProcedure);
     }
 
     public async Task SaveClearanceItems(string itemXml, int actedByMempId)
     {
         using var connection = new SqlConnection(_connectionString);
-        await connection.ExecuteAsync("OSDeregistration_ClearanaceItemsInfo", new { ItemXML = itemXml, ActedbyMempID = actedByMempId }, commandType: CommandType.StoredProcedure);
+        await connection.ExecuteAsync("OSDeregistration_ClearanaceItemsInfo",
+         new { ItemXML = itemXml, ActedbyMempID = actedByMempId },
+          commandType: CommandType.StoredProcedure);
     }
 
     public async Task UpdateOsHrRelievingDate(int osMempId, DateTime? relievingDate, int osdId)
@@ -125,4 +128,13 @@ public class DeregistrationRepository : IDeregistrationRepository
         using var connection = new SqlConnection(_connectionString);
         await connection.ExecuteAsync("OSDeregistration_UpdateOSResuptreldate", new { OSMEmpID = osMempId, RelievingDate = relievingDate, OSDID = osdId }, commandType: CommandType.StoredProcedure);
     }
+    
+    public async Task<DeregistrationDetailsDto?> GetDeregistrationDetails(int osdId)
+{
+    using var conn = new SqlConnection(_connectionString);
+    return await conn.QuerySingleOrDefaultAsync<DeregistrationDetailsDto>(
+        "OSDeregistration_GetDeatilsByMasterID",
+        new { OSDID = osdId }, 
+        commandType: CommandType.StoredProcedure);
+}
 }
