@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("OSDeregistrationAPI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+88e41304b59b3553fcfa9efb90819d7ecd99e5ac")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c8f829ff162f17795d1d4de06fab617615d93179")]
 [assembly: System.Reflection.AssemblyProductAttribute("OSDeregistrationAPI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("OSDeregistrationAPI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

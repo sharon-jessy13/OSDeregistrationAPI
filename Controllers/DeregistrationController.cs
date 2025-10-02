@@ -57,15 +57,11 @@ public class DeregistrationController : ControllerBase
         return Ok(data);
     }
 
-    [HttpGet("details/{osdId}")]
-    public async Task<IActionResult> GetDeregistrationDetails(int osdId)
+    [HttpGet("clearance/{osdId}/approval-count")]
+    public async Task<IActionResult> GetApprovalCount(int osdId)
     {
-        var data = await _repository.GetDeregistrationDetails(osdId);
-        if (data == null)
-        {
-            return NotFound();
-        }
-        return Ok(data);
+        var count = await _repository.GetApprovalCount(osdId);
+        return Ok(new { ApprovalCount = count });
     }
 
     // --- POST/PUT Endpoints ---
@@ -79,7 +75,7 @@ public class DeregistrationController : ControllerBase
         
         int masterId = await _repository.CreateDeregistrationRequest(request);
 
-        if (request.Ratings.Any())
+        if (request.Ratings != null && request.Ratings.Any())
         {
             await _repository.InsertRatings(masterId, request.Ratings);
         }
@@ -118,7 +114,7 @@ public class DeregistrationController : ControllerBase
     [HttpPut("os-hr-approval")]
     public async Task<IActionResult> OsHrApproval([FromBody] OsHrApprovalModel model)
     {
-        await _repository.UpdateOsHrRelievingDate(model.OsMempId, model.RelievingDate, model.OsdId);
+        await _repository.UpdateStatusOnHrApproval(model.OsMempId, model.RelievingDate, model.OsdId);
         return Ok();
     }
     public record OsHrApprovalModel(int OsMempId, DateTime? RelievingDate, int OsdId);
@@ -144,7 +140,7 @@ public class DeregistrationController : ControllerBase
             }
             else
             {
-                sb.Append($"<LastworkingDate>{submission.LastWorkingDate}</LastworkingDate>");
+                sb.Append($"<LastworkingDate>{submission.LastWorkingDate:yyyy-MM-dd}</LastworkingDate>");
             }
             sb.Append("</Item>");
         }
