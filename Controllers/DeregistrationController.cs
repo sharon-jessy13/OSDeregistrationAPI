@@ -56,14 +56,16 @@ public class DeregistrationController : ControllerBase
         var data = await _repository.GetTransportClearanceStatus(osdId, mempId);
         return Ok(data);
     }
-
-    [HttpGet("clearance/{osdId}/approval-count")]
-    public async Task<IActionResult> GetApprovalCount(int osdId)
+[HttpGet("details/{osdId}")]
+    public async Task<IActionResult> GetDeregistrationDetails(int osdId)
     {
-        var count = await _repository.GetApprovalCount(osdId);
-        return Ok(new { ApprovalCount = count });
+        var data = await _repository.GetDeregistrationDetails(osdId);
+        if (data == null)
+        {
+            return NotFound();
+        }
+        return Ok(data);
     }
-
     // --- POST/PUT Endpoints ---
     [HttpPost("submit")]
     public async Task<IActionResult> SubmitDeregistration([FromBody] DeregistrationRequest request)

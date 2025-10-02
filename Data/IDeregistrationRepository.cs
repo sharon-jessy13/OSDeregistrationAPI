@@ -11,7 +11,7 @@ public interface IDeregistrationRepository
     Task<IEnumerable<RatingCriterion>> GetRatingCriteria();
     Task<Employee?> GetEmployeeDetails(int mempId);
     Task<TransportClearanceDto?> GetTransportClearanceStatus(int osdId, int mempId);
-    Task<int> GetApprovalCount(int osdId);
+    Task<DeregistrationDetailsDto?> GetDeregistrationDetails(int osdId);
 
     // Methods to create and update the deregistration request
     Task<int> CreateDeregistrationRequest(DeregistrationRequest request);

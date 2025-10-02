@@ -153,10 +153,11 @@ public class DeregistrationRepository
     }
     
     // 14. OSDeregistration_GetApprovalCountForValidation
-    public async Task<int> GetApprovalCount(int osdId)
+    public async Task<DeregistrationDetailsDto?> GetDeregistrationDetails(int osdId)
     {
-        using var connection = new SqlConnection(_connectionString);
-        return await connection.ExecuteScalarAsync<int>("OSDeregistration_GetApprovalCountForValidation",
+        using var conn = new SqlConnection(_connectionString);
+        return await conn.QuerySingleOrDefaultAsync<DeregistrationDetailsDto>(
+            "OSDeregistration_GetDeatilsByMasterID", // Correct SP based on your image
             new { OSDID = osdId },
             commandType: CommandType.StoredProcedure);
     }
