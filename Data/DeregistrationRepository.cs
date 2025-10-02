@@ -58,7 +58,7 @@ public class DeregistrationRepository : IDeregistrationRepository
     }
 
     // 5 & 6. MO_Master_Employee_GetEmployeeDetailsByMEMPID and OSDeregistration_GetCurrentProjectsOfEmployee
-    public async Task<Employee?> GetEmployeeDetails(int mempId, int osdId)
+    public async Task<Employee?> GetEmployeeDetails(int mempId)
     {
         using var connection = new SqlConnection(_connectionString);
         var parameters = new { MEMPID = mempId };
@@ -69,8 +69,6 @@ public class DeregistrationRepository : IDeregistrationRepository
 
         if (employee != null)
         {
-            var projectParameters = new { MEMPID = mempId, OSDID = osdId };
-
             employee.CurrentProjects = (await connection.QueryAsync<Project>("OSDeregistration_GetCurrentProjectsOfEmployee",
                 parameters,
                 commandType: CommandType.StoredProcedure)).ToList();

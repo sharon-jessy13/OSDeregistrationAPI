@@ -9,10 +9,10 @@ public interface IDeregistrationRepository
     Task<IEnumerable<Employee>> GetAllOSEmployees();
     Task<IEnumerable<DeregistrationReason>> GetReasons();
     Task<IEnumerable<RatingCriterion>> GetRatingCriteria();
-    Task<Employee?> GetEmployeeDetails(int mempId, int osdId);
+    Task<Employee?> GetEmployeeDetails(int mempId);
     Task<TransportClearanceDto?> GetTransportClearanceStatus(int osdId, int mempId);
     Task<DeregistrationDetailsDto?> GetDeregistrationDetails(int osdId);
-
+    
     // Methods to create and update the deregistration request
     Task<int> CreateDeregistrationRequest(DeregistrationRequest request);
     Task InsertRatings(int masterId, IEnumerable<RatingSubmission> ratings);

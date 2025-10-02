@@ -43,12 +43,10 @@ public class DeregistrationController : ControllerBase
         return Ok(data);
     }
 
-    [HttpGet("employees/{mempId}/details/{osdId}")]
-    public async Task<IActionResult> GetEmployeeDetails(int mempId, int osdId)
+    [HttpGet("employees/{mempId}/details")]
+    public async Task<IActionResult> GetEmployeeDetails(int mempId)
     {
-        // Pass both IDs to the updated repository method
-        var data = await _repository.GetEmployeeDetails(mempId, osdId);
-
+        var data = await _repository.GetEmployeeDetails(mempId);
         if (data == null)
         {
             return NotFound($"No employee found with MEMPID: {mempId}");
@@ -63,8 +61,7 @@ public class DeregistrationController : ControllerBase
         var data = await _repository.GetTransportClearanceStatus(osdId, mempId);
         return Ok(data);
     }
-
-    [HttpGet("details/{osdId}")]
+[HttpGet("details/{osdId}")]
     public async Task<IActionResult> GetDeregistrationDetails(int osdId)
     {
         var data = await _repository.GetDeregistrationDetails(osdId);
@@ -74,8 +71,6 @@ public class DeregistrationController : ControllerBase
         }
         return Ok(data);
     }
-
-    
     // --- POST/PUT Endpoints ---
     [HttpPost("submit")]
     public async Task<IActionResult> SubmitDeregistration([FromBody] DeregistrationRequest request)
