@@ -1,18 +1,19 @@
 using Dapper;
 using Microsoft.Data.SqlClient;
+using OSDeregistrationAPI.Data; 
+using OSDeregistrationAPI.Models;
 using System.Data;
 using System.Xml.Linq;
-using OSDeregistrationAPI.Models;
 
 
-
-public class DeregistrationRepository
+public class DeregistrationRepository : IDeregistrationRepository
 {
     private readonly string _connectionString;
 
-    public DeregistrationRepository(string connectionString)
+    // Corrected constructor for Dependency Injection
+    public DeregistrationRepository(IConfiguration configuration)
     {
-        _connectionString = connectionString;
+        _connectionString = configuration.GetConnectionString("DefaultConnection")!;
     }
 
     // 1. OSDeregistration_GetAllmyDirectOSEmployees
@@ -28,7 +29,6 @@ public class DeregistrationRepository
     public async Task<IEnumerable<Employee>> GetAllOSEmployees()
     {
         using var connection = new SqlConnection(_connectionString);
-        // The SP returns columns like EID and FullName_1 which need to be mapped to the Employee model.
         var data = await connection.QueryAsync("MO_Master_Employee_GetAllEmployeesByResType_DropDown",
             new { TypeCode = "OS" },
             commandType: CommandType.StoredProcedure);
@@ -125,7 +125,7 @@ public class DeregistrationRepository
             commandType: CommandType.StoredProcedure);
     }
     
-    // 11. MSDeregistration_Clearance_InsertXML / OSDeregistration_ClearanceItemsInfo_IU
+    // 11. MSDeregistration_Clearance_InsertXML
     public async Task SaveClearanceItems(string itemXml, int actedByMempId)
     {
         using var connection = new SqlConnection(_connectionString);
@@ -152,12 +152,12 @@ public class DeregistrationRepository
             commandType: CommandType.StoredProcedure);
     }
     
-    // 14. OSDeregistration_GetApprovalCountForValidation
+    // 14. OSDeregistration_GetDeatilsByMasterID
     public async Task<DeregistrationDetailsDto?> GetDeregistrationDetails(int osdId)
     {
         using var conn = new SqlConnection(_connectionString);
         return await conn.QuerySingleOrDefaultAsync<DeregistrationDetailsDto>(
-            "OSDeregistration_GetDeatilsByMasterID", // Correct SP based on your image
+            "OSDeregistration_GetDeatilsByMasterID",
             new { OSDID = osdId },
             commandType: CommandType.StoredProcedure);
     }
