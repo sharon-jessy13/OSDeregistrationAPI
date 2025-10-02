@@ -58,7 +58,7 @@ public class DeregistrationRepository : IDeregistrationRepository
     }
 
     // 5 & 6. MO_Master_Employee_GetEmployeeDetailsByMEMPID and OSDeregistration_GetCurrentProjectsOfEmployee
-    public async Task<Employee?> GetEmployeeDetails(int mempId)
+    public async Task<Employee?> GetEmployeeDetails(int mempId, int osdId)
     {
         using var connection = new SqlConnection(_connectionString);
         var parameters = new { MEMPID = mempId };
@@ -69,6 +69,8 @@ public class DeregistrationRepository : IDeregistrationRepository
 
         if (employee != null)
         {
+            var projectParameters = new { MEMPID = mempId, OSDID = osdId };
+
             employee.CurrentProjects = (await connection.QueryAsync<Project>("OSDeregistration_GetCurrentProjectsOfEmployee",
                 parameters,
                 commandType: CommandType.StoredProcedure)).ToList();
@@ -134,20 +136,20 @@ public class DeregistrationRepository : IDeregistrationRepository
             commandType: CommandType.StoredProcedure);
     }
 
-    // 12. OSDeregistration_ClearanceStatus_GetTransportInfo_ByOSDID
+    // 12. OSDeregistration_PopulateTransportClearanceStatusByOSDID
     public async Task<TransportClearanceDto?> GetTransportClearanceStatus(int osdId, int mempId)
     {
         using var connection = new SqlConnection(_connectionString);
-        return await connection.QuerySingleOrDefaultAsync<TransportClearanceDto>("OSDeregistration_ClearanceStatus_GetTransportInfo_ByOSDID",
+        return await connection.QuerySingleOrDefaultAsync<TransportClearanceDto>("OSDeregistration_PopulateTransportClearanceStatusByOSDID",
             new { OSDID = osdId, MEmpID = mempId },
             commandType: CommandType.StoredProcedure);
     }
 
-    // 13. OSDeregistration_UpdateStatusOnHRApproval
+    // 13. OSDeregistration_UpdateOSResuptreldate
     public async Task UpdateStatusOnHrApproval(int osMempId, DateTime? relievingDate, int osdId)
     {
         using var connection = new SqlConnection(_connectionString);
-        await connection.ExecuteAsync("OSDeregistration_UpdateStatusOnHRApproval",
+        await connection.ExecuteAsync("OSDeregistration_UpdateOSResuptreldate",
             new { OSMEmpID = osMempId, RelievingDate = relievingDate, OSDID = osdId },
             commandType: CommandType.StoredProcedure);
     }

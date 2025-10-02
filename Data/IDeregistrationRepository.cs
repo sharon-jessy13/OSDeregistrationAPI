@@ -9,7 +9,7 @@ public interface IDeregistrationRepository
     Task<IEnumerable<Employee>> GetAllOSEmployees();
     Task<IEnumerable<DeregistrationReason>> GetReasons();
     Task<IEnumerable<RatingCriterion>> GetRatingCriteria();
-    Task<Employee?> GetEmployeeDetails(int mempId);
+    Task<Employee?> GetEmployeeDetails(int mempId, int osdId);
     Task<TransportClearanceDto?> GetTransportClearanceStatus(int osdId, int mempId);
     Task<DeregistrationDetailsDto?> GetDeregistrationDetails(int osdId);
 
