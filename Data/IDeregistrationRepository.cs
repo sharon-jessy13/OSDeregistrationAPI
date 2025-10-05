@@ -1,11 +1,11 @@
 using OSDeregistrationAPI.Models;
-
+using OSDeregistrationAPI.Models.Dtos;
 namespace OSDeregistrationAPI.Data;
 
 public interface IDeregistrationRepository
 {
     // Methods to retrieve information for the form
-    Task<IEnumerable<Employee>> GetEmployeesForRM(int rmEID);
+    Task<IEnumerable<EmployeeRmDto>> GetEmployeesForRM(int rmEID);
     Task<IEnumerable<Employee>> GetAllOSEmployees();
     Task<IEnumerable<DeregistrationReason>> GetReasons();
     Task<IEnumerable<RatingCriterion>> GetRatingCriteria();

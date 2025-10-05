@@ -15,35 +15,41 @@ public class DeregistrationRepository : IDeregistrationRepository
     {
         _connectionString = configuration.GetConnectionString("DefaultConnection")!;
     }
-
-    private IDbConnection CreateConnection() => new SqlConnection(_connectionString);
+    
     // 1. OSDeregistration_GetAllmyDirectOSEmployees
-    public async Task<IEnumerable<Employee>> GetEmployeesForRM(int rmEID)
+    public async Task<IEnumerable<EmployeeRmDto>> GetEmployeesForRM(int rmEID)
     {
-        using var connection = CreateConnection();
+        using var connection = new SqlConnection(_connectionString);
         const string spName = "OSDeregistration_GetAllmyDirectOSEmployees";
         var parameters = new { EID = rmEID };
-
-        var employees = await connection.QueryAsync<Employee, EmployeeNameAndIdDto, Employee>(
+        var rawData = await connection.QueryAsync<RawEmployeeFromSpDto>(
             spName,
-            (employee, dto) =>
-            {
-                string rawName = dto.EmplyeeNameAndID;
-                int openParen = rawName.LastIndexOf('(');
-                employee.FullName = (openParen > 0) ? rawName.Substring(0, openParen).Trim() : rawName;
-                return employee;
-            },
             parameters,
-            commandType: CommandType.StoredProcedure,
-            splitOn: "EmplyeeNameAndID");
+            commandType: CommandType.StoredProcedure);
+        var employees = rawData.Select(rawEmployee =>
+        {
+            string fullName = rawEmployee.EmplyeeNameAndID ?? string.Empty;
+            int openParen = fullName.LastIndexOf('(');
+
+            // Parse the name out of the "Name (ID)" string
+            if (openParen > 0)
+            {
+                fullName = fullName.Substring(0, openParen).Trim();
+            }
+
+            return new EmployeeRmDto
+            {
+                MempId = rawEmployee.MempId,
+                FullName = fullName
+            };
+        });
 
         return employees;
     }
-
-    // 2. MO_Master_Employee_GetAllEmployeesByResType_DropDown
+   // 2. MO_Master_Employee_GetAllEmployeesByResType_DropDown
     public async Task<IEnumerable<Employee>> GetAllOSEmployees()
     {
-        using var connection = CreateConnection();
+        using var connection =  new SqlConnection(_connectionString);
         return await connection.QueryAsync<Employee>(
             "MO_Master_Employee_GetAllEmployeesByResType_DropDown",
             new { TypeCode = "OS" },
@@ -70,7 +76,7 @@ public class DeregistrationRepository : IDeregistrationRepository
     // 5 & 6. MO_Master_Employee_GetEmployeeDetailsByMEMPID and OSDeregistration_GetCurrentProjectsOfEmployee
     public async Task<Employee?> GetEmployeeDetails(int mempId)
     {
-        using var connection = CreateConnection();
+        using var connection = new SqlConnection(_connectionString);
         var parameters = new { MEMPID = mempId };
 
         var dto = await connection.QuerySingleOrDefaultAsync< EmployeeDetailsDto>(

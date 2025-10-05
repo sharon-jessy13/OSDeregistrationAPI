@@ -43,6 +43,12 @@ public class DeregistrationController : ControllerBase
         return Ok(data);
     }
 
+    [HttpGet("clearance/transport-status")]
+    public async Task<IActionResult> GetTransportStatus([FromQuery] int osdId, [FromQuery] int mempId)
+    {
+        var data = await _repository.GetTransportClearanceStatus(osdId, mempId);
+        return Ok(data);
+    }
     [HttpGet("employees/{mempId}/details")]
     public async Task<IActionResult> GetEmployeeDetails(int mempId)
     {
@@ -55,13 +61,7 @@ public class DeregistrationController : ControllerBase
         return Ok(data);
     }
 
-    [HttpGet("clearance/transport-status")]
-    public async Task<IActionResult> GetTransportStatus([FromQuery] int osdId, [FromQuery] int mempId)
-    {
-        var data = await _repository.GetTransportClearanceStatus(osdId, mempId);
-        return Ok(data);
-    }
-[HttpGet("details/{osdId}")]
+    [HttpGet("details/{osdId}")]
     public async Task<IActionResult> GetDeregistrationDetails(int osdId)
     {
         var data = await _repository.GetDeregistrationDetails(osdId);
@@ -71,6 +71,7 @@ public class DeregistrationController : ControllerBase
         }
         return Ok(data);
     }
+
     // --- POST/PUT Endpoints ---
     [HttpPost("submit")]
     public async Task<IActionResult> SubmitDeregistration([FromBody] DeregistrationRequest request)
