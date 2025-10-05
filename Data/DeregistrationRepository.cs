@@ -15,7 +15,7 @@ public class DeregistrationRepository : IDeregistrationRepository
     {
         _connectionString = configuration.GetConnectionString("DefaultConnection")!;
     }
-    
+
     // 1. OSDeregistration_GetAllmyDirectOSEmployees
     public async Task<IEnumerable<EmployeeRmDto>> GetEmployeesForRM(int rmEID)
     {
@@ -46,11 +46,11 @@ public class DeregistrationRepository : IDeregistrationRepository
 
         return employees;
     }
-   // 2. MO_Master_Employee_GetAllEmployeesByResType_DropDown
-    public async Task<IEnumerable<Employee>> GetAllOSEmployees()
+    // 2. MO_Master_Employee_GetAllEmployeesByResType_DropDown
+    public async Task<IEnumerable<EmployeeDropdownItemDto>> GetAllOSEmployees()
     {
-        using var connection =  new SqlConnection(_connectionString);
-        return await connection.QueryAsync<Employee>(
+        using var connection = new SqlConnection(_connectionString);
+        return await connection.QueryAsync<EmployeeDropdownItemDto>(
             "MO_Master_Employee_GetAllEmployeesByResType_DropDown",
             new { TypeCode = "OS" },
             commandType: CommandType.StoredProcedure);
@@ -79,17 +79,17 @@ public class DeregistrationRepository : IDeregistrationRepository
         using var connection = new SqlConnection(_connectionString);
         var parameters = new { MEMPID = mempId };
 
-        var dto = await connection.QuerySingleOrDefaultAsync< EmployeeDetailsDto>(
-            "MO_Master_Employee_GetEmployeeDetailsByMEMPID",
-            parameters,
-            commandType: CommandType.StoredProcedure);
+        var dto = await connection.QuerySingleOrDefaultAsync<EmployeeDetailsDto>(
+         "MO_Master_Employee_GetEmployeeDetailsByMEMPID",
+         parameters,
+         commandType: CommandType.StoredProcedure);
 
         if (dto == null)
         {
-            return null; // This path returns a value
+            return null;
         }
 
-        // Map from the DTO to the clean Employee model
+        // Maps the DTO to your clean Employee model
         var employee = new Employee
         {
             MempId = dto.MempId,
@@ -99,6 +99,7 @@ public class DeregistrationRepository : IDeregistrationRepository
             PrimaryGroupName = dto.PrimaryGroupName
         };
 
+        // Fetches the related projects for that employee
         employee.CurrentProjects = (await connection.QueryAsync<Project>(
             "OSDeregistration_GetCurrentProjectsOfEmployee",
             parameters,

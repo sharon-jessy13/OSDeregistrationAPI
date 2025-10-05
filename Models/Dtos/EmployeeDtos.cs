@@ -23,3 +23,13 @@ public class RawEmployeeFromSpDto
     public int MempId { get; set; }
     public string? EmplyeeNameAndID { get; set; } // Note the typo to match your SQL
 }
+
+public class EmployeeDropdownItemDto
+{
+    public int MEmpID { get; set; }
+    public int EID { get; set; }
+    public int EmployeeID { get; set; }
+    public string? FullName { get; set; }
+    public string? EmployeeNameAndID { get; set; }
+    public string? InternalEmpID { get; set; }
+}

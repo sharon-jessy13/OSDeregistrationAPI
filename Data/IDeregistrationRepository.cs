@@ -6,7 +6,7 @@ public interface IDeregistrationRepository
 {
     // Methods to retrieve information for the form
     Task<IEnumerable<EmployeeRmDto>> GetEmployeesForRM(int rmEID);
-    Task<IEnumerable<Employee>> GetAllOSEmployees();
+    Task<IEnumerable<EmployeeDropdownItemDto>> GetAllOSEmployees();
     Task<IEnumerable<DeregistrationReason>> GetReasons();
     Task<IEnumerable<RatingCriterion>> GetRatingCriteria();
     Task<Employee?> GetEmployeeDetails(int mempId);

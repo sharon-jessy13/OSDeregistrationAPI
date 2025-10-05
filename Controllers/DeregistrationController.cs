@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using OSDeregistrationAPI.Data;
 using OSDeregistrationAPI.Models;
+using OSDeregistrationAPI.Models.Dtos;
 using System.Text;
 
 [ApiController]
@@ -23,11 +24,11 @@ public class DeregistrationController : ControllerBase
     }
     
     [HttpGet("employees/hr")]
-    public async Task<IActionResult> GetEmployeesForHr()
-    {
-        var data = await _repository.GetAllOSEmployees();
-        return Ok(data);
-    }
+    public async Task<ActionResult<IEnumerable<EmployeeDropdownItemDto>>> GetAllOSEmployees()
+{
+    var employees = await _repository.GetAllOSEmployees();
+    return Ok(employees);
+}
 
     [HttpGet("lookup/reasons")]
     public async Task<IActionResult> GetReasons()
@@ -60,6 +61,7 @@ public class DeregistrationController : ControllerBase
 
         return Ok(data);
     }
+    
 
     [HttpGet("details/{osdId}")]
     public async Task<IActionResult> GetDeregistrationDetails(int osdId)
@@ -108,14 +110,14 @@ public class DeregistrationController : ControllerBase
     public async Task<IActionResult> UpdateClearanceCount(int instanceId)
     {
         await _repository.UpdateConfirmationCount(instanceId);
-        return Ok();
+        return Ok(new { message = "Confirmation count updated successfully." });
     }
     
     [HttpPut("hr-confirmation")]
     public async Task<IActionResult> HrConfirmation([FromBody] HrConfirmationModel model)
     {
         await _repository.UpdateActualRelievingDate(model.EID, model.ActualRelievingDate);
-        return Ok();
+         return Ok(new { message = "HR confirmation and relieving date updated successfully." });
     }
     public record HrConfirmationModel(int EID, DateTime? ActualRelievingDate);
     
@@ -123,7 +125,8 @@ public class DeregistrationController : ControllerBase
     public async Task<IActionResult> OsHrApproval([FromBody] OsHrApprovalModel model)
     {
         await _repository.UpdateStatusOnHrApproval(model.OsMempId, model.RelievingDate, model.OsdId);
-        return Ok();
+        return Ok(new{ message = "OS HR approval status updated successfully." });
+
     }
     public record OsHrApprovalModel(int OsMempId, DateTime? RelievingDate, int OsdId);
 
